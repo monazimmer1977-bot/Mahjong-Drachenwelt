@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mahjong – Drachenwelt</title>
+<style>
+:root{--ink:#392c4d;--gold:#d8a84f;--cream:#fff7e8;--panel:rgba(255,250,240,.92)}
+*{box-sizing:border-box}body{margin:0;font-family:Georgia,'Trebuchet MS',sans-serif;color:var(--ink);min-height:100vh;background:linear-gradient(160deg,#f8d9e8,#d8e9f8 48%,#f8e4bd);transition:background 1s ease}
+body.summer{background:linear-gradient(160deg,#b7e7d0,#c4e9f5 48%,#f7e9a8)}body.autumn{background:linear-gradient(160deg,#f4c28d,#e99d83 48%,#f6dfaa)}body.winter{background:linear-gradient(160deg,#cfe5f5,#e8edfa 48%,#fdfdff)}
+header{padding:18px 16px 8px;text-align:center}.brand{font-size:clamp(1.35rem,4vw,2.1rem);font-weight:bold;letter-spacing:.04em;text-shadow:0 1px #fff}.subtitle{font-size:.9rem;opacity:.8;margin-top:4px}
+.wrap{max-width:1040px;margin:auto;padding:10px 14px 30px;display:grid;grid-template-columns:minmax(0,1fr) 275px;gap:14px}.panel{background:var(--panel);border:1px solid rgba(255,255,255,.8);border-radius:22px;padding:15px;box-shadow:0 8px 25px #5a46701a}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.pill{background:#fff0c9;border:1px solid #e7c77f;border-radius:999px;padding:8px 12px;font-weight:bold}.progress{height:8px;background:#eadfce;border-radius:10px;overflow:hidden;margin:10px 0}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#e8b34e,#e980a9);transition:width .3s}
+#board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:16px}.tile{aspect-ratio:.86;border:0;border-radius:13px;background:linear-gradient(145deg,#fffef9,#e9d9bd);box-shadow:0 4px 0 #c8b28f,0 5px 10px #5c3f241a;color:#644d47;font-size:clamp(1.35rem,4vw,2.25rem);cursor:pointer;position:relative;transition:transform .14s,opacity .2s,box-shadow .14s;display:flex;align-items:center;justify-content:center}.tile:after{content:"";position:absolute;inset:4px;border:1px solid #d5bd8e;border-radius:9px;pointer-events:none}.tile:hover{transform:translateY(-2px)}.tile.selected{outline:3px solid #e4a93f;transform:translateY(-4px);box-shadow:0 7px 0 #c8b28f,0 9px 18px #df9f42aa}.tile.gone{visibility:hidden;pointer-events:none}.tile.locked{opacity:.38;filter:grayscale(.6)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:12px;padding:10px 14px;background:#6d547e;color:white;font-weight:bold;cursor:pointer}.btn.gold{background:#c68d2c;color:#fff}.btn.light{background:#f4e8d8;color:#59465c;border:1px solid #e1ceb2}.message{min-height:24px;margin-top:12px;font-weight:bold;color:#795a25}
+.side{display:flex;flex-direction:column;gap:14px}.dragon-scene{min-height:225px;border-radius:18px;background:radial-gradient(circle at 50% 42%,#fff6cf,#e9d9f8 52%,#c8d9f2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.dragon{font-size:6rem;filter:drop-shadow(0 8px 5px #66508033);animation:bob 3s ease-in-out infinite}.spark{position:absolute;font-size:1.2rem;animation:twinkle 2s infinite alternate}.spark:nth-child(2){top:20px;left:25px}.spark:nth-child(3){top:45px;right:25px}.spark:nth-child(4){bottom:25px;left:35px}@keyframes bob{50%{transform:translateY(-8px) rotate(2deg)}}@keyframes twinkle{to{opacity:.35;transform:scale(.7)}}
+h2{font-size:1.1rem;margin:0 0 10px}.small{font-size:.9rem;line-height:1.45}.seasonline{display:flex;align-items:center;gap:10px}.seasonicon{font-size:2rem}.barlabel{display:flex;justify-content:space-between;font-size:.84rem;margin-top:8px}.notice{font-size:.8rem;opacity:.75;margin-top:12px;line-height:1.4}
+footer{text-align:center;font-size:.8rem;padding:0 16px 24px;opacity:.7}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}.dragon-scene{min-height:180px}#board{gap:6px}.panel{padding:12px}}
+@media(max-width:420px){.side{grid-template-columns:1fr}.side .wide{grid-column:auto}#board{gap:5px}.tile{border-radius:9px}}
+</style>
+</head>
+<body class="spring">
+<header><div class="brand">🌸 Mahjong · Drachenwelt 🐉</div><div class="subtitle">Finde gleiche Steine – und lass deine magische Welt wachsen.</div></header>
+<main class="wrap">
+<section class="panel">
+ <div class="topline"><span class="pill" id="level">Level 1</span><span class="pill" id="matches">Paare: 0 / 9</span><span class="pill" id="moves">Züge: 0</span></div>
+ <div class="progress"><div id="levelbar"></div></div>
+ <div class="small">Wähle zwei gleiche, freie Steine. Jedes gefundene Paar bringt Magie in die Landschaft und lässt deinen Drachen wachsen.</div>
+ <div id="board" aria-label="Mahjong Spielfeld"></div>
+ <div class="actions"><button class="btn gold" id="hint">✨ Tipp</button><button class="btn light" id="shuffle">🔀 Mischen</button><button class="btn light" id="restart">↻ Level neu</button></div>
+ <div class="message" id="message" aria-live="polite">Finde dein erstes Paar!</div>
+</section>
+<aside class="side">
+ <section class="panel wide"><h2>Dein Drache</h2><div class="dragon-scene"><span class="spark">✦</span><span class="spark">✧</span><span class="spark">✦</span><div class="dragon" id="dragon">🥚</div></div><div class="topline" style="margin-top:10px"><strong id="dragonstage">Ein geheimnisvolles Ei</strong><span class="pill" id="dragonlevel">0 / 5000</span></div><div class="progress"><div id="dragonbar"></div></div><div class="small" id="dragontext">Noch schläft dein Drache im Ei. Mit jedem geschafften Level kommt er seinem großen Abenteuer näher.</div></section>
+ <section class="panel"><h2>🌦️ Jahreszeiten</h2><div class="seasonline"><span class="seasonicon" id="seasonicon">🌸</span><div><strong id="seasonname">Frühling</strong><div class="small" id="seasontext">Kirschblüten erwachen.</div></div></div><div class="notice">Nach jeweils drei gefundenen Paaren wechselt die Jahreszeit. Die Welt verändert ihre Farben mit dir.</div></section>
+ <section class="panel"><h2>🏆 Dein Fortschritt</h2><div class="small">Geschaffte Level: <strong id="completed">0</strong><br>Gefundene Paare insgesamt: <strong id="totalpairs">0</strong><br>Dein Ziel: Drache auf Level 5000 erwachsen</div><div class="notice">Dies ist die erste spielbare Demo. Dein Fortschritt bleibt während dieser Sitzung erhalten.</div></section>
+</aside>
+</main>
+<footer>Eine kleine magische Mahjong-Demo · Für Handy und Computer optimiert</footer>
+<script>
+const symbols=['🌸','🦋','🌿','🐦','🍁','❄️','🌻','🎋','🌺','🍄','🌙','💎','🐟','🌼','🍃','☀️','🪷','🦚'];
+const seasons=[{name:'Frühling',icon:'🌸',text:'Kirschblüten erwachen.',cls:'spring'},{name:'Sommer',icon:'☀️',text:'Die Welt erstrahlt im Sonnenlicht.',cls:'summer'},{name:'Herbst',icon:'🍁',text:'Goldene Blätter tanzen im Wind.',cls:'autumn'},{name:'Winter',icon:'❄️',text:'Kristalliner Schnee verzaubert das Land.',cls:'winter'}];
+let level=1,matches=0,moves=0,totalPairs=0,completed=0,seasonIndex=0,selected=null,tiles=[],pairCount=9;
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function init(){matches=0;moves=0;selected=null;pairCount=9;let pool=shuffle([...symbols]);tiles=shuffle(pool.slice(0,pairCount).flatMap((s,i)=>[{id:i*2,sym:s,alive:true},{id:i*2+1,sym:s,alive:true}]));$('message').textContent='Finde dein erstes Paar!';render();update()}
+function render(){const b=$('board');b.innerHTML='';tiles.forEach(t=>{let btn=document.createElement('button');btn.className='tile'+(!t.alive?' gone':'')+(selected===t.id?' selected':'');btn.textContent=t.alive?t.sym:'';btn.setAttribute('aria-label',t.alive?'Mahjong-Stein '+t.sym:'Entfernter Stein');btn.onclick=()=>choose(t.id);b.appendChild(btn)})}
+function choose(id){const t=tiles.find(x=>x.id===id);if(!t||!t.alive)return;if(selected===id){selected=null;render();return}if(selected===null){selected=id;render();return}const first=tiles.find(x=>x.id===selected);moves++;if(first&&first.sym===t.sym){first.alive=false;t.alive=false;matches++;totalPairs++;seasonIndex=Math.floor(totalPairs/3)%4;$('message').textContent='✨ Wunderbar! Ein Paar gefunden – Magie erfüllt die Welt.';if(matches===pairCount){completed++;$('message').textContent='🎉 Level geschafft! Dein Drache wächst weiter.';level++;setTimeout(()=>{init();$('message').textContent='Neues Level! Die Reise geht weiter. 🐉'},1000)}}else{$('message').textContent='Fast! Diese Steine passen nicht zusammen – versuche es erneut.'}selected=null;render();update()}
+function update(){const s=seasons[seasonIndex];document.body.className=s.cls;$('level').textContent='Level '+level;$('matches').textContent='Paare: '+matches+' / '+pairCount;$('moves').textContent='Züge: '+moves;$('levelbar').style.width=(matches/pairCount*100)+'%';$('seasonicon').textContent=s.icon;$('seasonname').textContent=s.name;$('seasontext').textContent=s.text;$('completed').textContent=completed;$('totalpairs').textContent=totalPairs;
+let stage,emoji,desc,progress;if(completed===0){stage='Ein geheimnisvolles Ei';emoji='🥚';desc='Noch schläft dein Drache im Ei. Schaffe Level für Level, bis er schlüpft.';progress=0}else if(completed<5){stage='Frisch geschlüpft';emoji='🐣';desc='Ein winziges Drachenbaby! Es ist neugierig und voller Energie.';progress=completed/5*100}else if(completed<25){stage='Kleiner Jungdrache';emoji='🐉';desc='Dein Drache wächst, seine Flügel werden kräftiger und seine Magie stärker.';progress=completed/25*100}else if(completed<100){stage='Junger Drache';emoji='🐲';desc='Ein mutiger Drache erkundet mit dir neue Jahreszeiten und Landschaften.';progress=completed/100*100}else if(completed<5000){stage='Auf dem Weg zum erwachsenen Drachen';emoji='🐲';desc='Mit jedem Level nähert er sich seinem großen Schicksal: Level 5000.';progress=completed/5000*100}else{stage='Erwachsener Drache · Die große Liebe';emoji='🐉❤️';desc='Er begegnet seiner Drachendame. Gemeinsam beginnt das Abenteuer ihrer Drachenfamilie.';progress=100}
+$('dragon').textContent=emoji;$('dragonstage').textContent=stage;$('dragontext').textContent=desc;$('dragonlevel').textContent=Math.min(completed,5000)+' / 5000';$('dragonbar').style.width=progress+'%'}
+$('hint').onclick=()=>{const alive=tiles.filter(t=>t.alive);const pair=alive.find((t,i)=>alive.slice(i+1).some(o=>o.sym===t.sym));if(!pair){$('message').textContent='Keine Paare gefunden – mische die Steine.';return}selected=pair.id;render();$('message').textContent='✨ Tipp: Der markierte Stein hat ein passendes Gegenstück.'};
+$('shuffle').onclick=()=>{tiles=shuffle(tiles);selected=null;render();$('message').textContent='Die Steine wurden neu gemischt.'};
+$('restart').onclick=()=>init();init();
+</script>
+</body>
+</html>
