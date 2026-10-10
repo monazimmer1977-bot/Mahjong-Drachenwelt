@@ -1,0 +1,49 @@
+
+name: Mahjong Drachenwelt APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Android-Projekt finden
+        run: |
+          unzip -q MahjongDrachenwelt_AndroidStudio_Projekt.zip -d buildsrc
+          PROJECT_DIR=$(find buildsrc -name settings.gradle.kts -printf '%h\n' | head -1)
+          if [ -z "$PROJECT_DIR" ]; then
+            PROJECT_DIR=$(find buildsrc -name settings.gradle -printf '%h\n' | head -1)
+          fi
+          test -n "$PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: APK bauen
+        run: gradle --no-daemon -p "$PROJECT_DIR" assembleDebug
+
+      - name: APK bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mahjong-Drachenwelt-APK
+          path: buildsrc/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+          
