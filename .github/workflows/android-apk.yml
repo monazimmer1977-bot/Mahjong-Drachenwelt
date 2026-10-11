@@ -28,8 +28,8 @@ jobs:
 
       - name: SDK-Tools prüfen
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+         yes | sdkmanager --sdk_root="$ANDROID_HOME" "cmdline-tools;latest" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+         
 
       - name: Projektdateien anzeigen
         run: |
