@@ -26,7 +26,12 @@ jobs:
       - name: Android SDK einrichten
         uses: android-actions/setup-android@v3
 
+      - name: SDK-Tools prüfen
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Projektdateien anzeigen
         run: |
           echo "Dateien im Repository:"
-          find . -maxdepth 3 -type f | head -200
+          find . -maxdepth 4 -type f | head -200
